@@ -30,7 +30,7 @@ jobs:
         working-directory: ${{ matrix.project }}
         run: |
           if [ "${{ matrix.project }}" = "cli" ]; then
-            go build ./...
+            go build -o teal-cli ./...
             go test ./... || echo "No Go tests yet"
           else
             npm install
