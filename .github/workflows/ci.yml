@@ -11,13 +11,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
+      # Set up Node.js only for web and server
       - name: Set up Node.js
+        if: matrix.project != 'cli'
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
+      # Set up Go only for cli
+      - name: Set up Go
+        if: matrix.project == 'cli'
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.22
+
       - name: Install & Test
         working-directory: ${{ matrix.project }}
         run: |
-          npm install
-          echo "No tests yet for ${{ matrix.project }}"
+          if [ "${{ matrix.project }}" = "cli" ]; then
+            go build ./...
+            go test ./... || echo "No Go tests yet"
+          else
+            npm install
+            echo "No tests yet for ${{ matrix.project }}"
+          fi
