@@ -1,0 +1,23 @@
+name: teal
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [server, web, cli]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install & Test
+        working-directory: ${{ matrix.project }}
+        run: |
+          npm install
+          echo "No tests yet for ${{ matrix.project }}"
