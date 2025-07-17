@@ -60,6 +60,8 @@ func main() {
             }
 
                 sent, err := client.Emails.Send(params)
+                _ = sent
+                _ = err
                 fmt.Println("@", task_obj.username," -> " ,task_obj.task);
             }
         }
