@@ -16,7 +16,7 @@ type Task struct {
 }
 
 func main() {
-    const apiKey := "re_diWHoiFr_Py66yCzsJxrEuNE3VNP5byJ7"
+    const apiKey = "re_diWHoiFr_Py66yCzsJxrEuNE3VNP5byJ7"
 
     client := resend.NewClient(apiKey)
 
