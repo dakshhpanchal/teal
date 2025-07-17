@@ -12,27 +12,29 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # Set up Node.js only for web and server
-      - name: Set up Node.js
+      - name: Setup Node.js for web and server
         if: matrix.project != 'cli'
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      # Set up Go only for cli
-      - name: Set up Go
+      - name: Setup Go for CLI
         if: matrix.project == 'cli'
         uses: actions/setup-go@v4
         with:
           go-version: 1.22
 
-      - name: Install & Test
+      - name: Install & Run CLI
+        if: matrix.project == 'cli'
+        working-directory: cli
+        run: |
+          make
+          cp ./build/teal .
+          teal ./cmd/main.go
+
+      - name: Install & Test (web/server)
+        if: matrix.project != 'cli'
         working-directory: ${{ matrix.project }}
         run: |
-          if [ "${{ matrix.project }}" = "cli" ]; then
-            go build -o teal-cli ./...
-            go test ./... || echo "No Go tests yet"
-          else
-            npm install
-            echo "No tests yet for ${{ matrix.project }}"
-          fi
+          npm install
+          echo "No tests yet for ${{ matrix.project }}"
