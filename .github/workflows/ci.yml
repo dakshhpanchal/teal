@@ -30,7 +30,7 @@ jobs:
         run: |
           make
           cp ./build/teal .
-          teal ./cmd/main.go
+          ./teal ./cmd/main.go
 
       - name: Install & Test (web/server)
         if: matrix.project != 'cli'
