@@ -3,7 +3,7 @@ FROM golang:1.22 AS builder
 WORKDIR /app
 COPY . .
 
-RUN go mod tidy && go build -o teal
+RUN go mod tidy && go get && go build -o teal
 
 FROM debian:bullseye-slim
 
