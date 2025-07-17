@@ -56,7 +56,7 @@ func main() {
                 From:    "onboarding@resend.dev",
                 To:      []string{"teal.client@gmail.com"},
                 Subject: "A task has been assigned to you!",
-                Html:    "<p>Recently as task has been assigned to you in a file" + task_obj.file + "<strong> " + task_obj.task " </strong>!</p>",
+                Html:    "<p>Recently as task has been assigned to you in a file" + task_obj.file + "<strong> " + task_obj.task + " </strong>!</p>",
             }
 
                 sent, err := client.Emails.Send(params)
