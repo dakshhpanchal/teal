@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({path: __dirname + '/.env'});
 const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
@@ -7,7 +7,6 @@ const GitHubStrategy = require('passport-github2').Strategy;
 const db = require('./db');
 const userRoutes = require('./routes/user');
 const app = express();
-const notificationsRoutes = require('./routes/notifications');
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -22,7 +21,6 @@ app.use(cors({
 
 app.use(passport.initialize());
 app.use(passport.session());
-app.use('/notifications', notificationsRoutes);
 app.use('/user', userRoutes);
 
 passport.use(new GitHubStrategy({
