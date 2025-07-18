@@ -1,11 +1,13 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const cors = require('cors');
 const passport = require('passport');
 const GitHubStrategy = require('passport-github2').Strategy;
 const db = require('./db');
 const userRoutes = require('./routes/user');
 const app = express();
+const notificationsRoutes = require('./routes/notifications');
 
 // ----------------------------
 // Configure Session
@@ -15,10 +17,17 @@ app.use(session({
   saveUninitialized: false
 }));
 
+//changes
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
+
 // ----------------------------
 // Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
+app.use('/notifications', notificationsRoutes);
 app.use('/user', userRoutes);
 
 // ----------------------------
@@ -70,7 +79,7 @@ app.get('/', (req, res) => {
   if (!req.user) return res.status(200).json({ message: 'Hello, Guest' });
   res.json({
     message: `Hello, ${req.user.name}`,
-    user: {
+'/'    user: {
       id: req.user.id,
       name: req.user.name,
       email: req.user.email,
