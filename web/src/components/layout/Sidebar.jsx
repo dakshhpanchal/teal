@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 const Sidebar = () => {
   return (
     <div className="sidebar">
-      <h2>GitConnect</h2>
+      <h2>Teal</h2>
       <ul>
         <li><Link to="/">Dashboard</Link></li>
         <li><Link to="/tasks">Tasks</Link></li>
