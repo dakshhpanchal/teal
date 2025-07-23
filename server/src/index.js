@@ -9,7 +9,7 @@ const db = require('./db'); // assumes PostgreSQL setup
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173', 'http://web:5173'],
     methods: ['GET', 'POST'],
     credentials: true
 }));
@@ -21,7 +21,8 @@ app.use(session({
     cookie: {
         httpOnly: true,
         secure: false,
-        maxAge: 24 * 60 * 60 * 1000
+        maxAge: 24 * 60 * 60 * 1000,
+        sameSite: 'lax'
     }
 }));
 
@@ -34,17 +35,23 @@ passport.use(new GitHubStrategy({
     callbackURL: "http://localhost:5000/auth/github/callback"
 }, async (accessToken, refreshToken, profile, done) => {
     try {
+        console.log(profile)
         const githubId = profile.id;
-        const name = profile.displayName || profile.username;
+        const username = profile.username;
+        const name = profile.displayName || username;
         const email = profile.emails?.[0]?.value || null;
+        const avatarUrl = profile.photos?.[0]?.value || null;
+        const profileUrl = profile.profileUrl;
 
         const existing = await db.query('SELECT * FROM users WHERE github_id = $1', [githubId]);
         if (existing.rows.length > 0) return done(null, existing.rows[0]);
 
-        const insert = await db.query(
-            'INSERT INTO users (github_id, name, email, role) VALUES ($1, $2, $3, $4) RETURNING *',
-            [githubId, name, email, 'member']
-        );
+        const insert = await db.query(`
+            INSERT INTO users (github_id, username, name, email, avatar_url, profile_url, role)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING *
+        `, [githubId, username, name, email, avatarUrl, profileUrl, 'member']);
+
         return done(null, insert.rows[0]);
     } catch (err) {
         return done(err);

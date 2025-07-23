@@ -7,7 +7,9 @@ function Login() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/auth/user')
+    axios.get('http://localhost:5000/auth/user', {
+        withCredentials: true
+    })
       .then(res => setUser(res.data))
       .catch(() => setUser(null));
   }, []);
@@ -17,7 +19,7 @@ function Login() {
   };
 
   const handleLogout = () => {
-    axios.get('http://server:5000/auth/logout')
+    axios.get('http://localhost:5000/auth/logout')
       .then(() => setUser(null))
       .catch(console.error);
   };
