@@ -1,4 +1,4 @@
 export default function Dashboard() {
-  return <div>Welcome to the gigga</div>;
+  return <div>Welcome to the asdas</div>;
 }
 

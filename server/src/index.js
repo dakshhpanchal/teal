@@ -88,4 +88,4 @@ app.get('/auth/github/callback',
         res.redirect('/');
     });
 
-app.listen(5000, () => console.log('Server running okay okay at http://localhost:5000'));
+app.listen(5000, () => console.log('Server running fas fas at http://localhost:5000'));
