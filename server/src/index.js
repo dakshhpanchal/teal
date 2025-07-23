@@ -4,24 +4,29 @@ const session = require('express-session');
 const cors = require('cors');
 const passport = require('passport');
 const GitHubStrategy = require('passport-github2').Strategy;
-const db = require('./db');
-const userRoutes = require('./routes/user');
+const db = require('./db'); // assumes PostgreSQL setup
+
 const app = express();
+
+app.use(cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST'],
+    credentials: true
+}));
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false
-}));
-
-app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: false,
+        maxAge: 24 * 60 * 60 * 1000
+    }
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
-app.use('/user', userRoutes);
 
 passport.use(new GitHubStrategy({
     clientID: process.env.GITHUB_CLIENT_ID,
@@ -32,18 +37,14 @@ passport.use(new GitHubStrategy({
         const githubId = profile.id;
         const name = profile.displayName || profile.username;
         const email = profile.emails?.[0]?.value || null;
-        const role = 'member'; // or whatever default
 
         const existing = await db.query('SELECT * FROM users WHERE github_id = $1', [githubId]);
-        if (existing.rows.length > 0) {
-            return done(null, existing.rows[0]);
-        }
+        if (existing.rows.length > 0) return done(null, existing.rows[0]);
 
         const insert = await db.query(
             'INSERT INTO users (github_id, name, email, role) VALUES ($1, $2, $3, $4) RETURNING *',
-            [githubId, name, email, role]
+            [githubId, name, email, 'member']
         );
-
         return done(null, insert.rows[0]);
     } catch (err) {
         return done(err);
@@ -61,31 +62,29 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
-app.get('/', (req, res) => {
-    if (!req.user) return res.status(200).json({message: 'Hello, Guest'});
-    res.json({
-        message: `Hello, ${req.user.name}`,
-        user: {
-            id: req.user.id,
-            name: req.user.name,
-            email: req.user.email,
-            role: req.user.role
-        }
-    });
-});
-
-app.get('/auth/logout', (req, res) => {
-    req.logout(() => {
-        res.json({message: 'Logged out successfully'});
-    });
-});
-
 app.get('/auth/github', passport.authenticate('github', {scope: ['user:email']}));
 
 app.get('/auth/github/callback',
     passport.authenticate('github', {failureRedirect: '/'}),
     (req, res) => {
-        res.redirect('/');
-    });
+        res.redirect('http://localhost:5173');
+    }
+);
 
-app.listen(5000, () => console.log('Server running fas fas at http://localhost:5000'));
+app.get('/auth/user', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.json(req.user);
+    } else {
+        res.status(401).json({error: 'Not logged in'});
+    }
+});
+
+app.get('/auth/logout', (req, res) => {
+    req.logout(err => {
+        if (err) return res.status(500).json({error: 'Logout failed'});
+        res.clearCookie('connect.sid');
+        res.json({message: 'Logged out successfully'});
+    });
+});
+
+app.listen(5000, () => console.log('Server running at http://localhost:5000'));

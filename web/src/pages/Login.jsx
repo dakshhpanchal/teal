@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-axios.defaults.withCredentials = true; // send cookies
+axios.defaults.withCredentials = true;
 
 function Login() {
   const [user, setUser] = useState(null);
@@ -13,18 +13,28 @@ function Login() {
   }, []);
 
   const handleLogin = () => {
-    window.location.href = 'http://localhost:5000/auth/github';
+    window.location.href = 'http://localhost:5000/auth/github'; // Redirect to GitHub login
+  };
+
+  const handleLogout = () => {
+    axios.get('http://server:5000/auth/logout')
+      .then(() => setUser(null))
+      .catch(console.error);
   };
 
   return (
-    <div>
+    <div className="login-container">
       {user ? (
-        <>
-          <h2>Welcome, {user.displayName}</h2>
-          <img src={user.photos?.[0]?.value} alt="avatar" />
-        </>
+        <div className="user-card">
+          <img src={user.photos?.[0]?.value} alt="avatar" className="avatar" />
+          <h2>Welcome, {user.name || user.username}</h2>
+          <p>{user.email}</p>
+          <button className="logout-btn" onClick={handleLogout}>Logout</button>
+        </div>
       ) : (
-        <button onClick={handleLogin}>Login with GitHub</button>
+        <button className="login-btn" onClick={handleLogin}>
+          Login with GitHub
+        </button>
       )}
     </div>
   );
