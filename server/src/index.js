@@ -4,7 +4,7 @@ const session = require('express-session');
 const cors = require('cors');
 const passport = require('passport');
 const GitHubStrategy = require('passport-github2').Strategy;
-const db = require('./db'); // assumes PostgreSQL setup
+const db = require('./db');
 
 const app = express();
 
