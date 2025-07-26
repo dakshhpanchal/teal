@@ -4,6 +4,7 @@ import Login from '../pages/Login';
 import Notifications from '../pages/Notifications';
 import Projects from '../pages/Projects';
 import Tasks from '../pages/Tasks';
+import Settings from '../pages/Setting';
 
 const AppRoutes = () => {
   return (
@@ -13,6 +14,7 @@ const AppRoutes = () => {
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/tasks" element={<Tasks />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
   );
 };

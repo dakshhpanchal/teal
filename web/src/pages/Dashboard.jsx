@@ -1,5 +1,5 @@
 import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
+import { CheckCircle, ClipboardList, MessageSquare} from 'lucide-react';
 
 export default function Dashboard() {
   const stats = {
@@ -11,67 +11,103 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex h-screen">
-      <div className="flex-1 flex flex-col p-8">
-        <Header />
-        <div className="grid grid-cols-3 gap-6 mt-6">
-          <div className="card col-span-2">
-            <h2 className="text-xl font-bold mb-4">Team Activity Overview</h2>
-            <div className="flex justify-around text-center">
-              <div>
-                <p className="text-3xl font-semibold text-purple-500">120</p>
-                <p className="text-gray-500 text-sm">Total Tasks</p>
-              </div>
-              <div>
-                <p className="text-3xl font-semibold text-green-500">85</p>
-                <p className="text-gray-500 text-sm">Completed</p>
-              </div>
-              <div>
-                <p className="text-3xl font-semibold text-pink-500">5</p>
-                <p className="text-gray-500 text-sm">Ongoing Projects</p>
-              </div>
-              <div>
-                <p className="text-3xl font-semibold text-yellow-500">3</p>
-                <p className="text-gray-500 text-sm">Meetings</p>
-              </div>
-              <div>
-                <p className="text-3xl font-semibold text-blue-500">12</p>
-                <p className="text-gray-500 text-sm">Active Members</p>
-              </div>
+    <div className="main">
+      <Header title="Dashboard" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Stats Cards */}
+        <div className="card p-6">
+          <h3 className="text-lg font-semibold text-gray-700 mb-4">Tasks Overview</h3>
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-3xl font-bold text-purple-600">{stats.completedTasks}/{stats.totalTasks}</p>
+              <p className="text-gray-500">Completed Tasks</p>
+            </div>
+            <div className="w-24 h-24">
+              <svg viewBox="0 0 36 36" className="circular-chart">
+                <path
+                  className="circle-bg"
+                  d="M18 2.0845
+                    a 15.9155 15.9155 0 0 1 0 31.831
+                    a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none"
+                  stroke="#eee"
+                  strokeWidth="3"
+                />
+                <path
+                  className="circle"
+                  strokeDasharray={`${(stats.completedTasks / stats.totalTasks) * 100}, 100`}
+                  d="M18 2.0845
+                    a 15.9155 15.9155 0 0 1 0 31.831
+                    a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none"
+                  stroke="#8b5cf6"
+                  strokeWidth="3"
+                />
+              </svg>
             </div>
           </div>
+        </div>
 
-          <div className="card flex flex-col justify-between">
-            <h2 className="text-lg font-bold mb-2">Next Meeting</h2>
-            <p className="text-gray-600">Project Kickoff</p>
-            <p className="text-sm text-gray-400">Today at 3:00 PM</p>
-            <button className="button mt-4">Join Meeting</button>
-          </div>
+        <div className="card p-6">
+          <h3 className="text-lg font-semibold text-gray-700 mb-4">Active Projects</h3>
+          <p className="text-3xl font-bold text-blue-600 mb-2">{stats.ongoingProjects}</p>
+          <p className="text-gray-500">Ongoing Projects</p>
+        </div>
 
-          <div className="card">
-            <h3 className="text-lg font-semibold mb-2">Tasks Progress</h3>
-            <p className="text-gray-500 mb-2">85 / 120 Completed</p>
-            <div className="w-full bg-gray-300 rounded-full h-4">
-              <div className="bg-green-400 h-4 rounded-full" style={{ width: '70%' }}></div>
-            </div>
-          </div>
+        <div className="card p-6">
+          <h3 className="text-lg font-semibold text-gray-700 mb-4">Team Members</h3>
+          <p className="text-3xl font-bold text-green-600 mb-2">{stats.activeMembers}</p>
+          <p className="text-gray-500">Active Members</p>
+        </div>
 
-          <div className="card">
-            <h3 className="text-lg font-semibold mb-2">Project Completion</h3>
-            <p className="text-gray-500 mb-2">3 out of 5 Projects On Track</p>
-            <div className="w-full bg-gray-300 rounded-full h-4">
-              <div className="bg-purple-400 h-4 rounded-full" style={{ width: '60%' }}></div>
-            </div>
+        {/* Recent Activity */}
+        <div className="card p-6 md:col-span-2">
+          <h3 className="text-lg font-semibold text-gray-700 mb-4">Recent Activity</h3>
+          <div className="space-y-4">
+            {[
+              { id: 1, action: 'completed', task: 'UI Redesign', by: 'John', time: '2 hours ago' },
+              { id: 2, action: 'assigned', task: 'API Integration', by: 'Sarah', time: '4 hours ago' },
+              { id: 3, action: 'commented', task: 'Dashboard Layout', by: 'Mike', time: '1 day ago' }
+            ].map(activity => (
+              <div key={activity.id} className="flex items-start gap-3">
+                <div className="p-2 rounded-full bg-purple-100 text-purple-600">
+                  {activity.action === 'completed' ? (
+                    <CheckCircle className="w-5 h-5" />
+                  ) : activity.action === 'assigned' ? (
+                    <ClipboardList className="w-5 h-5" />
+                  ) : (
+                    <MessageSquare className="w-5 h-5" />
+                  )}
+                </div>
+                <div>
+                  <p className="text-gray-800">
+                    <span className="font-medium">{activity.by}</span> {activity.action} {activity.task}
+                  </p>
+                  <p className="text-sm text-gray-500">{activity.time}</p>
+                </div>
+              </div>
+            ))}
           </div>
+        </div>
 
-          <div className="card">
-            <h3 className="text-lg font-semibold mb-2">Notifications</h3>
-            <ul className="text-sm text-gray-500 space-y-2">
-              <li>✔️ Task "UI Redesign" marked complete</li>
-              <li>🕒 Meeting scheduled with Client X</li>
-              <li>📝 New Task assigned: "API Integration"</li>
-            </ul>
+        {/* Upcoming Meetings */}
+        <div className="card p-6">
+          <h3 className="text-lg font-semibold text-gray-700 mb-4">Upcoming Meetings</h3>
+          <div className="space-y-4">
+            {[
+              { id: 1, title: 'Project Kickoff', time: 'Today, 3:00 PM', participants: 5 },
+              { id: 2, title: 'Sprint Planning', time: 'Tomorrow, 10:00 AM', participants: 4 }
+            ].map(meeting => (
+              <div key={meeting.id} className="p-3 bg-gray-50 rounded-lg">
+                <p className="font-medium text-gray-800">{meeting.title}</p>
+                <p className="text-sm text-gray-500 mb-2">{meeting.time}</p>
+                <p className="text-xs text-gray-400">{meeting.participants} participants</p>
+              </div>
+            ))}
           </div>
+          <button className="mt-4 text-sm text-purple-500 hover:text-purple-700">
+            View All Meetings
+          </button>
         </div>
       </div>
     </div>
