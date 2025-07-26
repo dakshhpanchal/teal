@@ -1,19 +1,21 @@
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import { Home, Folder, ClipboardList, Bell } from 'lucide-react';
 
-const Sidebar = () => {
+export default function Sidebar() {
   return (
-    <div className="sidebar">
-      <h2>Teal</h2>
-      <ul>
-        <li><Link to="/">Dashboard</Link></li>
-        <li><Link to="/tasks">Tasks</Link></li>
-        <li><Link to="/notifications">Notifications</Link></li>
-        <li><Link to="/projects">Projects</Link></li>
-        <li><Link to="/setting">Setting</Link></li>
-      </ul>
-    </div>
+    <aside className="sidebar">
+      <NavLink to="/" className="flex items-center justify-center w-12 h-12 mb-6 rounded-xl hover:bg-purple-100">
+        <Home />
+      </NavLink>
+      <NavLink to="/projects" className="flex items-center justify-center w-12 h-12 mb-6 rounded-xl hover:bg-purple-100">
+        <Folder />
+      </NavLink>
+      <NavLink to="/tasks" className="flex items-center justify-center w-12 h-12 mb-6 rounded-xl hover:bg-purple-100">
+        <ClipboardList />
+      </NavLink>
+      <NavLink to="/notifications" className="flex items-center justify-center w-12 h-12 mb-6 rounded-xl hover:bg-purple-100">
+        <Bell />
+      </NavLink>
+    </aside>
   );
-};
-
-export default Sidebar;
-
+}

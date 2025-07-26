@@ -1,0 +1,483 @@
+Directory structure:
+└── src/
+    ├── App.jsx
+    ├── index.css
+    ├── main.jsx
+    ├── components/
+    │   ├── layout/
+    │   │   ├── Header.jsx
+    │   │   └── Sidebar.jsx
+    │   ├── notifications/
+    │   │   ├── Dashbox.jsx
+    │   │   ├── Login.jsx
+    │   │   ├── NotificationList.jsx
+    │   │   ├── Notifications.jsx
+    │   │   └── Tasks.jsx
+    │   └── tasks/
+    │       ├── TaskCard.jsx
+    │       └── Taskform.jsx
+    ├── context/
+    │   └── AuthContext.jsx
+    ├── pages/
+    │   ├── Dashboard.jsx
+    │   ├── Login.jsx
+    │   ├── Notifications.jsx
+    │   ├── Projects.jsx
+    │   ├── Setting.jsx
+    │   └── Tasks.jsx
+    ├── router/
+    │   └── AppRoutes.jsx
+    └── utils/
+        └── api.js
+
+================================================
+FILE: App.jsx
+================================================
+import Sidebar from './components/layout/Sidebar.jsx';
+import AppRoutes from './router/AppRoutes.jsx';
+
+export default function App() {
+  return (
+    <div className="app">
+      <Sidebar />
+      <div className="main">
+        <AppRoutes />
+      </div>
+    </div>
+  );
+}
+
+
+
+
+================================================
+FILE: index.css
+================================================
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #f0f0f5;
+  color: #333;
+}
+
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  background-color: #111;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar a {
+  color: #ccc;
+  text-decoration: none;
+  margin: 15px 0;
+  font-size: 18px;
+}
+
+.sidebar a:hover {
+  color: #1DB954;
+}
+
+.header {
+  background-color: #fff;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.content {
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.button {
+  background-color: #1DB954;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.button:hover {
+  background-color: #17a84b;
+}
+
+
+
+================================================
+FILE: main.jsx
+================================================
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App.jsx';
+import './index.css';
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+);
+
+
+
+
+
+================================================
+FILE: components/layout/Header.jsx
+================================================
+import { Bell, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+export default function Header({ user }) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    axios.get(`http://localhost:5000/auth/logout`)
+      .then(() => navigate('/login'))
+      .catch(console.error);
+  };
+
+  return (
+    <header className="flex justify-between items-center p-4 bg-black text-white shadow-md">
+      <h1 className="text-2xl font-bold">TeamHub</h1>
+      <div className="flex items-center gap-4">
+        <Bell className="cursor-pointer" />
+        <div className="flex items-center gap-2">
+          <img src={user?.avatar_url} alt="avatar" className="w-8 h-8 rounded-full" />
+          <button onClick={handleLogout} className="hover:text-red-500">
+            <LogOut />
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+
+
+================================================
+FILE: components/layout/Sidebar.jsx
+================================================
+import { NavLink } from 'react-router-dom';
+import { LayoutDashboard, Bell, ClipboardList, Folder } from 'lucide-react';
+
+export default function Sidebar() {
+  return (
+    <aside className="w-64 h-screen bg-gray-900 text-white flex flex-col p-4 space-y-6">
+      <NavLink to="/" className="text-xl font-semibold">Dashboard</NavLink>
+      <nav className="flex flex-col space-y-4">
+        <NavLink to="/projects" className="flex items-center gap-2 hover:text-blue-400"><Folder />Projects</NavLink>
+        <NavLink to="/tasks" className="flex items-center gap-2 hover:text-blue-400"><ClipboardList />Tasks</NavLink>
+        <NavLink to="/notifications" className="flex items-center gap-2 hover:text-blue-400"><Bell />Notifications</NavLink>
+      </nav>
+    </aside>
+  );
+}
+
+
+
+================================================
+FILE: components/notifications/Dashbox.jsx
+================================================
+
+
+
+================================================
+FILE: components/notifications/Login.jsx
+================================================
+
+
+
+================================================
+FILE: components/notifications/NotificationList.jsx
+================================================
+
+
+
+================================================
+FILE: components/notifications/Notifications.jsx
+================================================
+
+
+
+================================================
+FILE: components/notifications/Tasks.jsx
+================================================
+
+
+
+================================================
+FILE: components/tasks/TaskCard.jsx
+================================================
+
+
+
+================================================
+FILE: components/tasks/Taskform.jsx
+================================================
+
+
+
+================================================
+FILE: context/AuthContext.jsx
+================================================
+import { createContext, useContext, useEffect, useState } from 'react';
+import axios from '../utils/api';
+
+const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);     // Stores GitHub user data
+  const [loading, setLoading] = useState(true); // Indicates if we're still checking login
+
+  // Called when app loads to check if user is already logged in
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get('/auth/me'); // Backend should return GitHub profile
+        setUser(res.data);
+      } catch (err) {
+        setUser(null); // Not logged in
+      } finally {
+        setLoading(false); // Done loading
+      }
+    };
+    fetchUser();
+  }, []);
+
+  return (
+    <AuthContext.Provider value={{ user, setUser, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+// 🔁 useAuth hook
+export const useAuth = () => useContext(AuthContext);
+
+
+
+
+================================================
+FILE: pages/Dashboard.jsx
+================================================
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import Header from '../components/layout/Header';
+import Sidebar from '../components/layout/Sidebar';
+
+export default function Dashboard() {
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    axios.get(`http://localhost:5000/auth/user`)
+      .then(res => setUser(res.data))
+      .catch(() => navigate('/login'));
+  }, [navigate]);
+
+  if (!user) return <div>Loading...</div>;
+
+  return (
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1">
+        <Header user={user} />
+        <div className="p-6">
+          <div className="bg-white shadow rounded-xl p-6">
+            <img className="w-20 h-20 rounded-full mx-auto" src={user.avatar_url} alt="avatar" />
+            <h2 className="text-2xl text-center mt-4">{user.name}</h2>
+            <p className="text-center text-gray-500">{user.email}</p>
+            <p className="text-center mt-2 text-sm bg-gray-200 rounded-full inline-block px-4 py-1">{user.role?.toUpperCase()}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
+================================================
+FILE: pages/Login.jsx
+================================================
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+axios.defaults.withCredentials = true;
+
+function Login() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/auth/user', {withCredentials: true})
+      .then(res => setUser(res.data))
+      .catch(() => setUser(null));
+  }, []);
+
+  const handleLogin = () => {
+    window.location.href = 'http://localhost:5000/auth/github';
+  };
+
+  const handleLogout = () => {
+    axios.get('http://localhost:5000/auth/logout')
+      .then(() => setUser(null))
+      .catch(console.error);
+  };
+
+  return (
+    <div className="h-screen flex items-center justify-center bg-black text-white">
+      {user ? (
+        <div className="bg-gray-800 p-6 rounded-xl text-center space-y-4">
+          <img src={user.photos?.[0]?.value} alt="avatar" className="w-20 h-20 rounded-full mx-auto" />
+          <h2 className="text-2xl">Welcome, {user.name || user.username}</h2>
+          <p>{user.email}</p>
+          <button className="bg-red-500 px-4 py-2 rounded" onClick={handleLogout}>Logout</button>
+        </div>
+      ) : (
+        <button className="bg-green-500 px-6 py-3 text-xl rounded-lg" onClick={handleLogin}>
+          Login with GitHub
+        </button>
+      )}
+    </div>
+  );
+}
+
+export default Login;
+
+
+
+================================================
+FILE: pages/Notifications.jsx
+================================================
+import Sidebar from '../components/layout/Sidebar';
+import Header from '../components/layout/Header';
+
+const Notifications = () => {
+  return (
+    <div>
+      <h1 style={{ color: 'orange' }}>Notifications 🔔</h1>
+      <p>You have no new notifications.</p>
+    </div>
+  );
+};
+
+export default Notifications;
+
+
+
+
+================================================
+FILE: pages/Projects.jsx
+================================================
+const Projects = () => {
+ return (
+  <div>
+    <h1 style={{ color: 'green'}}>Ongoing Projects</h1>
+    <p>currently contributing in no projects.</p>
+  </div>	
+ );
+};
+
+export default Projects;
+
+
+
+================================================
+FILE: pages/Setting.jsx
+================================================
+
+
+
+================================================
+FILE: pages/Tasks.jsx
+================================================
+import Sidebar from '../components/layout/Sidebar';
+import Header from '../components/layout/Header';
+
+const Tasks = () => {
+  return (
+    <div>
+      <h1 style={{ color: 'blue' }}>Tasks 📋</h1>
+      <p>Here are your current tasks...</p>
+    </div>
+  );
+};
+
+export default Tasks;
+
+
+
+
+================================================
+FILE: router/AppRoutes.jsx
+================================================
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Dashboard from '../pages/Dashboard';
+import Login from '../pages/Login';
+import Notifications from '../pages/Notifications';
+import Projects from '../pages/Projects';
+import Tasks from '../pages/Tasks';
+
+const AppRoutes = () => {
+  return (
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/projects" element={<Projects />} />
+        <Route path="/tasks" element={<Tasks />} />
+      </Routes>
+  );
+};
+
+export default AppRoutes;
+
+
+
+
+================================================
+FILE: utils/api.js
+================================================
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://localhost:5000/api', // Adjust based on backend port
+  withCredentials: true, // Ensures cookies are sent (for session handling)
+});
+
+export default api;
+
+
+

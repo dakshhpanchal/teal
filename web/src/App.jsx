@@ -3,7 +3,7 @@ import AppRoutes from './router/AppRoutes.jsx';
 
 export default function App() {
   return (
-    <div className="app">
+    <div className="layout">
       <Sidebar />
       <div className="main">
         <AppRoutes />
@@ -11,4 +11,3 @@ export default function App() {
     </div>
   );
 }
-
