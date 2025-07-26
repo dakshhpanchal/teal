@@ -1,9 +1,32 @@
-export default function Header() {
+const styles = {
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '24px',
+    backgroundColor: 'white',
+    borderRadius: '16px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+  },
+  title: {
+    fontSize: '1.5rem',
+    fontWeight: 'bold',
+    color: '#374151'
+  },
+  avatar: {
+    width: '40px',
+    height: '40px',
+    borderRadius: '50%',
+    backgroundColor: '#e5e7eb'
+  }
+};
+
+export default function Header({ title }) {
   return (
-    <header className="flex justify-between items-center p-6 bg-white rounded-2xl shadow-sm">
-      <h1 className="text-2xl font-bold text-gray-700">Dashboard</h1>
-      <div className="flex items-center space-x-4">
-        <div className="w-10 h-10 rounded-full bg-gray-300" />
+    <header style={styles.header}>
+      <h1 style={styles.title}>{title}</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={styles.avatar} />
       </div>
     </header>
   );

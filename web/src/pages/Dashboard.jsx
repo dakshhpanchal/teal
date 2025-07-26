@@ -1,113 +1,88 @@
 import Header from '../components/layout/Header';
-import { CheckCircle, ClipboardList, MessageSquare} from 'lucide-react';
+import { CheckCircle, ClipboardList, MessageSquare } from 'lucide-react';
+
+const styles = {
+  card: {
+    background: 'linear-gradient(145deg, #f0f0f5, #ffffff)',
+    boxShadow: '6px 6px 20px #d1d1d6, -6px -6px 20px #ffffff',
+    borderRadius: '20px',
+    padding: '24px',
+    transition: 'transform 0.2s ease'
+  },
+  statValue: {
+    fontSize: '1.875rem',
+    fontWeight: 'bold',
+    color: '#8b5cf6',
+    marginBottom: '4px'
+  },
+  statLabel: {
+    color: '#6b7280',
+    fontSize: '0.875rem'
+  }
+};
 
 export default function Dashboard() {
   const stats = {
     totalTasks: 120,
     completedTasks: 85,
     ongoingProjects: 5,
-    upcomingMeetings: 3,
     activeMembers: 12,
   };
 
   return (
-    <div className="main">
+    <div style={{ padding: '2rem' }}>
       <Header title="Dashboard" />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div style={{ 
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '24px',
+        marginTop: '24px'
+      }}>
         {/* Stats Cards */}
-        <div className="card p-6">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Tasks Overview</h3>
-          <div className="flex justify-between items-center">
+        <div style={styles.card}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#374151', marginBottom: '16px' }}>
+            Tasks Overview
+          </h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <p className="text-3xl font-bold text-purple-600">{stats.completedTasks}/{stats.totalTasks}</p>
-              <p className="text-gray-500">Completed Tasks</p>
+              <p style={styles.statValue}>{stats.completedTasks}/{stats.totalTasks}</p>
+              <p style={styles.statLabel}>Completed Tasks</p>
             </div>
-            <div className="w-24 h-24">
-              <svg viewBox="0 0 36 36" className="circular-chart">
+            <div style={{ width: '96px', height: '96px' }}>
+              <svg viewBox="0 0 36 36" style={{ display: 'block', margin: '0 auto', maxWidth: '100%', maxHeight: '100%' }}>
                 <path
-                  className="circle-bg"
-                  d="M18 2.0845
-                    a 15.9155 15.9155 0 0 1 0 31.831
-                    a 15.9155 15.9155 0 0 1 0 -31.831"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   fill="none"
                   stroke="#eee"
                   strokeWidth="3"
                 />
                 <path
-                  className="circle"
                   strokeDasharray={`${(stats.completedTasks / stats.totalTasks) * 100}, 100`}
-                  d="M18 2.0845
-                    a 15.9155 15.9155 0 0 1 0 31.831
-                    a 15.9155 15.9155 0 0 1 0 -31.831"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   fill="none"
                   stroke="#8b5cf6"
                   strokeWidth="3"
+                  style={{ animation: 'progress 1s ease-out forwards' }}
                 />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="card p-6">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Active Projects</h3>
-          <p className="text-3xl font-bold text-blue-600 mb-2">{stats.ongoingProjects}</p>
-          <p className="text-gray-500">Ongoing Projects</p>
+        <div style={styles.card}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#374151', marginBottom: '16px' }}>
+            Active Projects
+          </h3>
+          <p style={{ ...styles.statValue, color: '#3b82f6' }}>{stats.ongoingProjects}</p>
+          <p style={styles.statLabel}>Ongoing Projects</p>
         </div>
 
-        <div className="card p-6">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Team Members</h3>
-          <p className="text-3xl font-bold text-green-600 mb-2">{stats.activeMembers}</p>
-          <p className="text-gray-500">Active Members</p>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="card p-6 md:col-span-2">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Recent Activity</h3>
-          <div className="space-y-4">
-            {[
-              { id: 1, action: 'completed', task: 'UI Redesign', by: 'John', time: '2 hours ago' },
-              { id: 2, action: 'assigned', task: 'API Integration', by: 'Sarah', time: '4 hours ago' },
-              { id: 3, action: 'commented', task: 'Dashboard Layout', by: 'Mike', time: '1 day ago' }
-            ].map(activity => (
-              <div key={activity.id} className="flex items-start gap-3">
-                <div className="p-2 rounded-full bg-purple-100 text-purple-600">
-                  {activity.action === 'completed' ? (
-                    <CheckCircle className="w-5 h-5" />
-                  ) : activity.action === 'assigned' ? (
-                    <ClipboardList className="w-5 h-5" />
-                  ) : (
-                    <MessageSquare className="w-5 h-5" />
-                  )}
-                </div>
-                <div>
-                  <p className="text-gray-800">
-                    <span className="font-medium">{activity.by}</span> {activity.action} {activity.task}
-                  </p>
-                  <p className="text-sm text-gray-500">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Upcoming Meetings */}
-        <div className="card p-6">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Upcoming Meetings</h3>
-          <div className="space-y-4">
-            {[
-              { id: 1, title: 'Project Kickoff', time: 'Today, 3:00 PM', participants: 5 },
-              { id: 2, title: 'Sprint Planning', time: 'Tomorrow, 10:00 AM', participants: 4 }
-            ].map(meeting => (
-              <div key={meeting.id} className="p-3 bg-gray-50 rounded-lg">
-                <p className="font-medium text-gray-800">{meeting.title}</p>
-                <p className="text-sm text-gray-500 mb-2">{meeting.time}</p>
-                <p className="text-xs text-gray-400">{meeting.participants} participants</p>
-              </div>
-            ))}
-          </div>
-          <button className="mt-4 text-sm text-purple-500 hover:text-purple-700">
-            View All Meetings
-          </button>
+        <div style={styles.card}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#374151', marginBottom: '16px' }}>
+            Team Members
+          </h3>
+          <p style={{ ...styles.statValue, color: '#10b981' }}>{stats.activeMembers}</p>
+          <p style={styles.statLabel}>Active Members</p>
         </div>
       </div>
     </div>
