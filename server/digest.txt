@@ -1,0 +1,285 @@
+Directory structure:
+└── server/
+    ├── Dockerfile
+    ├── nodemon.json
+    ├── package.json
+    ├── db/
+    │   └── init.sql
+    └── src/
+        ├── db.js
+        ├── index.js
+        └── routes/
+            ├── notification.js
+            └── user.js
+
+================================================
+FILE: Dockerfile
+================================================
+FROM node:18
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+RUN npm install -g nodemon
+
+COPY . .
+
+EXPOSE 5000
+CMD ["node", "src/index.js"]
+
+
+
+================================================
+FILE: nodemon.json
+================================================
+{
+  "watch": ["src"],
+  "ext": "js,json",
+  "ignore": ["node_modules"],
+  "legacyWatch": true
+}
+
+
+
+================================================
+FILE: package.json
+================================================
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "proxy": "http://localhost:5000",
+  "scripts": {
+    "start": "nodemon src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^7.0.5",
+    "passport": "^0.7.0",
+    "passport-github2": "^0.1.12",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
+
+
+
+================================================
+FILE: db/init.sql
+================================================
+DROP TABLE IF EXISTS notifications;
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    github_id VARCHAR(255) UNIQUE NOT NULL,
+    username VARCHAR(255),
+    name VARCHAR(255),
+    email VARCHAR(255),
+    avatar_url TEXT,
+    profile_url TEXT,
+    github_token TEXT,
+    role VARCHAR(50) DEFAULT 'member',
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE notifications (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+
+
+================================================
+FILE: src/db.js
+================================================
+const { Pool } = require('pg');
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL
+});
+
+module.exports = {
+  query: (text, params) => pool.query(text, params)
+};
+
+
+
+================================================
+FILE: src/index.js
+================================================
+require('dotenv').config({path: __dirname + '/../.env'});
+const express = require('express');
+const session = require('express-session');
+const cors = require('cors');
+const passport = require('passport');
+const GitHubStrategy = require('passport-github2').Strategy;
+const db = require('./db');
+
+const app = express();
+
+app.use(cors({
+    origin: ['http://localhost:5173', 'http://web:5173'],
+    methods: ['GET', 'POST', 'PUT', 'HEAD'],
+    credentials: true
+}));
+
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: false,
+        maxAge: 24 * 60 * 60 * 1000,
+        sameSite: 'lax'
+    }
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    callbackURL: "http://localhost:5000/auth/github/callback"
+}, async (accessToken, refreshToken, profile, done) => {
+    try {
+        console.log(profile)
+        const githubId = profile.id;
+        const username = profile.username;
+        const name = profile.displayName || username;
+        const email = profile.emails?.[0]?.value || null;
+        const avatarUrl = profile.photos?.[0]?.value || null;
+        const profileUrl = profile.profileUrl;
+
+        const existing = await db.query('SELECT * FROM users WHERE github_id = $1', [githubId]);
+        if (existing.rows.length > 0) return done(null, existing.rows[0]);
+
+        const insert = await db.query(`
+            INSERT INTO users (github_id, username, name, email, avatar_url, profile_url, role)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING *
+        `, [githubId, username, name, email, avatarUrl, profileUrl, 'member']);
+
+        return done(null, insert.rows[0]);
+    } catch (err) {
+        return done(err);
+    }
+}));
+
+passport.serializeUser((user, done) => done(null, user.id));
+
+passport.deserializeUser(async (id, done) => {
+    try {
+        const result = await db.query('SELECT * FROM users WHERE id = $1', [id]);
+        done(null, result.rows[0]);
+    } catch (err) {
+        done(err);
+    }
+});
+
+app.get('/auth/github', passport.authenticate('github', {scope: ['user:email']}));
+
+app.get('/auth/github/callback',
+    passport.authenticate('github', {failureRedirect: '/'}),
+    (req, res) => {
+        res.redirect('http://localhost:5173');
+    }
+);
+
+app.get('/auth/user', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.json(req.user);
+    } else {
+        res.status(401).json({error: 'Not logged in'});
+    }
+});
+
+app.get('/auth/logout', (req, res) => {
+    req.logout(err => {
+        if (err) return res.status(500).json({error: 'Logout failed'});
+        res.clearCookie('connect.sid');
+        res.json({message: 'Logged out successfully'});
+    });
+});
+
+app.get('/', (req, res) => {
+  res.send('Server is working!');
+});
+
+
+app.listen(5000, () => console.log('Server running at http://localhost:5000'));
+
+
+
+
+
+================================================
+FILE: src/routes/notification.js
+================================================
+const express = require('express');
+const router = express.Router();
+const db = require('../db');
+
+// Only show notifications if user is logged in
+router.get('/', async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Not logged in' });
+  }
+
+  try {
+    const result = await db.query(
+      'SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC',
+      [req.user.id]
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching notifications:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+module.exports = router;
+
+
+
+
+================================================
+FILE: src/routes/user.js
+================================================
+const express = require('express');
+const router = express.Router();
+
+router.get('/me', (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Not logged in' });
+  }
+
+  const { id, name, email, role } = req.user;
+  res.json({ id, name, email, role });
+});
+
+module.exports = router;
+
+
