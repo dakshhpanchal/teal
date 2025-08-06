@@ -5,8 +5,8 @@ const cors = require('cors');
 const passport = require('passport');
 const GitHubStrategy = require('passport-github2').Strategy;
 const db = require('./db');
-
 const app = express();
+const taskRoutes = require('./routes/task');
 
 app.use(express.json());
 
@@ -15,6 +15,8 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'HEAD'],
     credentials: true
 }));
+
+app.use('/tasks', taskRoutes);
 
 app.use(session({
     secret: process.env.SESSION_SECRET,

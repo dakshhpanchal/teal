@@ -1,5 +1,6 @@
 import Header from '../components/layout/Header';
 import { ClipboardList, CheckCircle, AlertCircle, Clock, Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Tasks = () => {
   const tasks = [
@@ -38,10 +39,10 @@ const Tasks = () => {
       <div className="card p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-800">My Tasks</h2>
-          <button className="button flex items-center gap-2">
+          <Link to="/tasks/new" className="button flex items-center gap-2">
             <Plus className="w-4 h-4" />
             New Task
-          </button>
+          </Link>
         </div>
 
         <div className="overflow-x-auto">
