@@ -16,6 +16,8 @@ services:
       - db
     networks:
       - net
+    env_file:
+      - ./server/.env
 
   web:
     build:

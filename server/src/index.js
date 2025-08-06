@@ -1,4 +1,4 @@
-require('dotenv').config({path: __dirname + '/.env'});
+require('dotenv').config({path: __dirname + '/../.env'});
 const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
@@ -8,9 +8,11 @@ const db = require('./db');
 
 const app = express();
 
+app.use(express.json());
+
 app.use(cors({
     origin: ['http://localhost:5173', 'http://web:5173'],
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT', 'HEAD'],
     credentials: true
 }));
 
@@ -94,4 +96,65 @@ app.get('/auth/logout', (req, res) => {
     });
 });
 
+app.get('/', (req, res) => {
+  res.send('Server is working!');
+});
+
+app.put('/auth/profile', async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Not logged in' });
+  }
+
+  const {
+    name,
+    email,
+    phone,
+    rollNumber,
+    branch,
+    year,
+    position,
+    bio,
+    skills,
+    socialLinks
+  } = req.body;
+
+  try {
+    const updated = await db.query(`
+      UPDATE users SET
+        name = $1,
+        email = $2,
+        phone = $3,
+        roll_number = $4,
+        branch = $5,
+        year = $6,
+        position = $7,
+        bio = $8,
+        skills = $9,
+        social_links = $10,
+        updated_at = NOW()
+      WHERE id = $11
+      RETURNING *
+    `, [
+      name,
+      email,
+      phone || null,
+      rollNumber || null,
+      branch || null,
+      year ? parseInt(year) : null,
+      position || 'Member',
+      bio || null,
+      Array.isArray(skills) ? skills : skills?.split(',').map(s => s.trim()) || [],
+      socialLinks || {},
+      req.user.id
+    ]);
+
+    res.status(200).json(updated.rows[0]);
+  } catch (err) {
+    console.error('Error updating profile:', err);
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
 app.listen(5000, () => console.log('Server running at http://localhost:5000'));
+
+
