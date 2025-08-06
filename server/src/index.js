@@ -1,4 +1,4 @@
-require('dotenv').config({path: __dirname + '/.env'});
+require('dotenv').config({path: __dirname + '/../.env'});
 const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
@@ -94,4 +94,11 @@ app.get('/auth/logout', (req, res) => {
     });
 });
 
+app.get('/', (req, res) => {
+  res.send('Server is working!');
+});
+
+
 app.listen(5000, () => console.log('Server running at http://localhost:5000'));
+
+

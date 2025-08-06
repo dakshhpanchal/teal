@@ -80,9 +80,8 @@ function Login() {
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    // Replace with your actual login logic
     console.log('Logging in with GitHub');
-    navigate('/');
+    window.location.href = 'http://localhost:5000/auth/github';
   };
 
   return (

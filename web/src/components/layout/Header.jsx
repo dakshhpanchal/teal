@@ -1,3 +1,6 @@
+import { useContext } from 'react';
+import { UserContext } from '../../context/UserContext.jsx';
+
 const styles = {
   header: {
     display: 'flex',
@@ -22,11 +25,23 @@ const styles = {
 };
 
 export default function Header({ title }) {
+  const { user } = useContext(UserContext);
   return (
     <header style={styles.header}>
       <h1 style={styles.title}>{title}</h1>
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <div style={styles.avatar} />
+        {user?.avatar_url ? (
+          <img
+            src={user.avatar_url}
+            alt="Profile"
+            style={styles.avatar}
+            onError={(e) => {
+              e.target.src = 'https://via.placeholder.com/40';
+            }}
+          />
+        ) : (
+          <div style={styles.avatar} />
+        )}
       </div>
     </header>
   );
