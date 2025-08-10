@@ -30,3 +30,10 @@ CREATE TABLE notifications (
     is_read BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TABLE tasks (
+    id SERIAL PRIMARY KEY ,
+    user_id INTEGER REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT NOW(),
+    task TEXT NOT NULL
+);

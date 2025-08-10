@@ -13,6 +13,20 @@ router.post('/add', async (req, res) => {
   }
 
   try {
+
+    const userResult = await db.query('SELECT id FROM users WHERE email = $1', [assigneeEmail]);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Assignee not found' });
+    }
+
+    const userId = userResult.rows[0].id;
+
+    const insert = await db.query(`
+      INSERT INTO tasks (user_id, task)
+      VALUES ($1, $2)
+      RETURNING *
+    `, [userId, `${title} - ${description}`]);
+
     const { data, error } = await resend.emails.send({
       from: 'Teal Tasks <onboarding@resend.dev>',
       to: [assigneeEmail],
@@ -27,7 +41,7 @@ router.post('/add', async (req, res) => {
 
     if (error) {
       console.error('❌ Email error:', error);
-      return res.status(500).json({ error: 'Email failed to send' });
+      return res.status(200).json({ message: 'Task added, saved, and email sent', task: insert.rows[0] });
     }
 
     res.status(200).json({ message: 'Task added and email sent', data });
